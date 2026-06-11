@@ -30,6 +30,7 @@
         "https://act.hoyolab.com/app/community-game-records-sea/index.html*"
       ],
       "js": [
+        "src/common/content-injector.js",
         "src/genshin/content/inject-hoyolab-response-hook.js"
       ],
       "run_at": "document_start"
@@ -41,6 +42,7 @@
         "https://act.hoyolab.com/app/community-game-records-sea/rpg/m.html*"
       ],
       "js": [
+        "src/common/content-injector.js",
         "src/hsr/content/inject-hoyolab-response-hook.js"
       ],
       "run_at": "document_start"
@@ -50,6 +52,7 @@
         "https://act.hoyolab.com/app/zzz-game-record/index.html*"
       ],
       "js": [
+        "src/common/content-injector.js",
         "src/zzz/content/inject-hoyolab-response-hook.js"
       ],
       "run_at": "document_start"
