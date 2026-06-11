@@ -35,6 +35,7 @@
       "src/hsr/injected/03-wiki.js",
       "src/hsr/injected/04-compare.js",
       "src/hsr/injected/05-render.js",
+      "src/common/injected/response-capture.js",
       "src/hsr/injected/06-network.js",
       "src/hsr/injected/07-panel.js",
       "src/hsr/injected/08-main.js",
