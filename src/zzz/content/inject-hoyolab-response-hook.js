@@ -32,6 +32,7 @@
       "src/zzz/injected/03-wiki.js",
       "src/zzz/injected/04-compare.js",
       "src/zzz/injected/05-render.js",
+      "src/common/injected/response-capture.js",
       "src/zzz/injected/06-network.js",
       "src/zzz/injected/07-panel.js",
       "src/zzz/injected/08-main.js",

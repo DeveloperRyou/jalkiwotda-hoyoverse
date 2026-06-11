@@ -65,6 +65,7 @@
         "src/genshin/assets/*.png",
         "src/genshin/assets/*.webp",
         "src/genshin/assets/*.svg",
+        "src/common/injected/*.js",
         "src/hsr/injected/*.js",
         "src/hsr/assets/*.png",
         "src/hsr/assets/*.webp",
