@@ -48,7 +48,7 @@
     };
   }
 
-  function formatEidolonCell(value) {
+  function formatCinemaCell(value) {
     const text = cleanCell(value);
     const number = Number(text);
     if (!Number.isFinite(number) || number < 20000 || number > 70000) return text;
@@ -78,12 +78,12 @@
           path: faction,
           traces: cleanCell(blockRow[3]),
           role: cleanCell(blockRow[2]),
-          lightCones: splitLines(blockRow[4]),
-          relicSets: splitLines(blockRow[5]),
-          ornamentSets: splitLines(blockRow[6]),
+          engines: splitLines(blockRow[4]),
+          drive4Sets: splitLines(blockRow[5]),
+          drive2Sets: splitLines(blockRow[6]),
           mainStats: parseMainStats(blockRow),
           usefulSubstats: splitLines(blockRow[10]),
-          eidolons: formatEidolonCell(blockRow[11]),
+          cinema: formatCinemaCell(blockRow[11]),
           statTarget: cleanCell(blockRow[12]),
           critTarget: cleanCell(blockRow[13]),
           notes: cleanCell(blockRow[14]),
@@ -92,21 +92,21 @@
           const key = JSON.stringify({
             role: variant.role,
             traces: variant.traces,
-            lightCones: variant.lightCones,
-            relicSets: variant.relicSets,
-            ornamentSets: variant.ornamentSets,
+            engines: variant.engines,
+            drive4Sets: variant.drive4Sets,
+            drive2Sets: variant.drive2Sets,
             mainStats: variant.mainStats,
             usefulSubstats: variant.usefulSubstats,
-            eidolons: variant.eidolons,
+            cinema: variant.cinema,
             statTarget: variant.statTarget,
             critTarget: variant.critTarget,
             notes: variant.notes,
           });
           if (seen.has(key)) return false;
           seen.add(key);
-          return variant.lightCones.length ||
-            variant.relicSets.length ||
-            variant.ornamentSets.length ||
+          return variant.engines.length ||
+            variant.drive4Sets.length ||
+            variant.drive2Sets.length ||
             Object.values(variant.mainStats).some((values) => values.length) ||
             cleanCell(variant.statTarget) ||
             cleanCell(variant.critTarget);

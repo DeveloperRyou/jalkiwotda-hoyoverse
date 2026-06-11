@@ -39,7 +39,7 @@
       agent_list: detailData?.agent_list,
       property_info: detailData?.property_info,
       equipment_info: detailData?.equipment_info,
-      relic_info: detailData?.relic_info,
+      drive_info: detailData?.drive_info || detailData?.relic_info,
     });
     const sampleText = [avatar?.name || avatar?.name_mi18n || avatar?.full_name_mi18n, ...propertyNames.slice(0, 8), ...sampledValues].join(" ");
     return /[가-힣]/.test(sampleText);

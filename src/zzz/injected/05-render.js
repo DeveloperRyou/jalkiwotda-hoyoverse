@@ -14,7 +14,7 @@
   function getUnmappedSets(rows) {
     const sets = [];
     for (const row of rows) {
-      for (const group of [...row.build.relicSets, ...row.build.ornamentSets]) {
+      for (const group of [...row.build.drive4Sets, ...row.build.drive2Sets]) {
         if (!group.known && group.dataAliases.length === 0 && !sets.some((set) => set.key === group.key)) {
           sets.push(group);
         }
@@ -141,7 +141,7 @@
     return app.config.sheetPageUrl || "#";
   }
 
-  function formatEidolon(rank) {
+  function formatCinema(rank) {
     const value = Number(rank);
     if (value === 0) return "명함";
     if (Number.isFinite(value)) return `${value}돌`;
@@ -174,12 +174,12 @@
     return `
       <tr>
         <td>${renderInlineIcon(row.iconUrl, app.styles.characterIcon)}${escapeHtml(row.name)}</td>
-        <td>Lv.${escapeHtml(row.level)}<br>${escapeHtml(formatEidolon(row.rank))}</td>
+        <td>Lv.${escapeHtml(row.level)}<br>${escapeHtml(formatCinema(row.rank))}</td>
         <td>${escapeHtml(cleanCell(variant.role))}</td>
-        <td>${renderOptionLine("엔진", row.build.lightCone, checks.lightCone, variant.lightCones, row.build.lightConeIcon, app.styles.equipmentIcon)}</td>
+        <td>${renderOptionLine("엔진", row.build.engine, checks.engine, variant.engines, row.build.engineIcon, app.styles.equipmentIcon)}</td>
         <td>
-          ${renderOptionHtmlLine("4세트", formatSetGroupsHtml(row.build.relicSets), checks.relicSets, variant.relicSets)}
-          ${renderOptionHtmlLine("2세트", formatSetGroupsHtml(row.build.ornamentSets), checks.ornamentSets, variant.ornamentSets)}
+          ${renderOptionHtmlLine("4세트", formatSetGroupsHtml(row.build.drive4Sets), checks.drive4Sets, variant.drive4Sets)}
+          ${renderOptionHtmlLine("2세트", formatSetGroupsHtml(row.build.drive2Sets), checks.drive2Sets, variant.drive2Sets)}
         </td>
         <td>
           ${renderOptionLine("4번", row.build.mainStats.body, checks.body, variant.mainStats?.body)}

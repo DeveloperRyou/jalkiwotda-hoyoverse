@@ -145,10 +145,10 @@
     const setGroups = summarizeSets(disks);
 
     return {
-      lightCone: getItemName(engine),
-      lightConeIcon: getImageUrl(engine),
-      relicSets: setGroups.filter((group) => group.count >= 4),
-      ornamentSets: setGroups.filter((group) => group.count < 4),
+      engine: getItemName(engine),
+      engineIcon: getImageUrl(engine),
+      drive4Sets: setGroups.filter((group) => group.count >= 4),
+      drive2Sets: setGroups.filter((group) => group.count < 4),
       mainStats: {
         body: getMainStatName(itemsByPos.get(4), propertyInfo),
         feet: getMainStatName(itemsByPos.get(5), propertyInfo),
@@ -160,9 +160,9 @@
 
   function compareVariant(build, variant) {
     const checks = {
-      lightCone: compareText(build.lightCone, variant.lightCones || []),
-      relicSets: compareSetGroups(build.relicSets, variant.relicSets || []),
-      ornamentSets: compareSetGroups(build.ornamentSets, variant.ornamentSets || []),
+      engine: compareText(build.engine, variant.engines || []),
+      drive4Sets: compareSetGroups(build.drive4Sets, variant.drive4Sets || []),
+      drive2Sets: compareSetGroups(build.drive2Sets, variant.drive2Sets || []),
       body: compareText(build.mainStats.body, variant.mainStats?.body || []),
       feet: compareText(build.mainStats.feet, variant.mainStats?.feet || []),
       sphere: compareText(build.mainStats.sphere, variant.mainStats?.sphere || []),
@@ -175,7 +175,7 @@
       return total;
     }, 0);
 
-    const matchedSetCount = [checks.relicSets, checks.ornamentSets].filter((check) => check.status === "ok").length;
+    const matchedSetCount = [checks.drive4Sets, checks.drive2Sets].filter((check) => check.status === "ok").length;
     const matchedMainStatCount = [checks.body, checks.feet, checks.sphere].filter((check) => check.status === "ok").length;
     return { variant, checks, score, matchedSetCount, matchedMainStatCount };
   }
