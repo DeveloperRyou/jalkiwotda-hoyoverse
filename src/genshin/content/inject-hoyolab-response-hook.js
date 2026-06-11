@@ -34,6 +34,7 @@
       "src/genshin/injected/03-wiki.js",
       "src/genshin/injected/04-compare.js",
       "src/genshin/injected/05-render.js",
+      "src/common/injected/response-capture.js",
       "src/genshin/injected/06-network.js",
       "src/genshin/injected/07-panel.js",
       "src/genshin/injected/08-main.js",
