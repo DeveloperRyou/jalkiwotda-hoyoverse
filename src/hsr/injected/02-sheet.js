@@ -79,6 +79,7 @@
       const name = cleanCell(row[0]);
       if (!name) continue;
 
+      const seen = new Set();
       const variants = fillMergedSheetCells(blockRows)
         .filter((blockRow) => blockRow.some((cell, index) => index > 0 && cleanCell(cell)))
         .map((blockRow) => ({
@@ -94,7 +95,13 @@
           statTarget: cleanCell(blockRow[13]),
           critTarget: cleanCell(blockRow[14]),
           notes: cleanCell(blockRow[15]),
-        }));
+        }))
+        .filter((variant) => {
+          const key = JSON.stringify(variant);
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
 
       characters.push({ name, variants });
       blockRows = [];
