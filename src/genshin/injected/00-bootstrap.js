@@ -53,12 +53,12 @@
       ],
       wikiSetListUrl:
         "https://sg-act-public-api.hoyolab.com/hoyowiki/genshin/wapi/get_entry_page_list",
-      wikiRelicSetMenuId: "108",
+      wikiArtifactSetMenuId: "108",
       wikiPageSize: 30,
       checkWeights: {
-        lightCone: 2,
-        relicSets: 4,
-        ornamentSets: 4,
+        weapon: 2,
+        artifactSets: 4,
+        artifactExtraSets: 4,
         body: 1,
         feet: 1,
         sphere: 1,

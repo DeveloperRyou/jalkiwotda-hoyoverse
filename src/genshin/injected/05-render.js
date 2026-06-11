@@ -7,9 +7,9 @@
     return rows.reduce((accumulator, row) => {
       const baseComparison = row.hasSeparateWeaponSelection ? row.settingComparison : row.comparison;
       Object.entries(baseComparison?.checks || {}).forEach(([key, check]) => {
-        if (key !== "lightCone" || !row.hasSeparateWeaponSelection) accumulator[check.status] += 1;
+        if (key !== "weapon" || !row.hasSeparateWeaponSelection) accumulator[check.status] += 1;
       });
-      if (row.hasSeparateWeaponSelection) accumulator[row.weaponComparison?.checks?.lightCone?.status || "unknown"] += 1;
+      if (row.hasSeparateWeaponSelection) accumulator[row.weaponComparison?.checks?.weapon?.status || "unknown"] += 1;
       [row.statComparison, row.critComparison].forEach((check) => { accumulator[check.status] += 1; });
       return accumulator;
     }, { ok: 0, bad: 0, overcap: 0, under: 0, unknown: 0 });
@@ -18,7 +18,7 @@
   function getUnmappedSets(rows) {
     const sets = [];
     for (const row of rows) {
-      for (const group of [...row.build.relicSets, ...row.build.ornamentSets]) {
+      for (const group of [...row.build.artifactSets, ...row.build.artifactExtraSets]) {
         if (!group.known && group.dataAliases.length === 0 && !sets.some((set) => set.key === group.key)) {
           sets.push(group);
         }
@@ -188,7 +188,7 @@
     return cleanCell(app.state.sheetMetadataCache?.title) || "기준표";
   }
 
-  function formatEidolon(rank) {
+  function formatConstellation(rank) {
     if (!cleanCell(rank)) return "-";
     const value = Number(rank);
     if (value === 0) return "명함";
@@ -204,8 +204,8 @@
 
   function summarizeVariantHint(variant) {
     return [
-      cleanCell(variant.relicSets?.[0]),
-      variant.isAllInOneSheet ? cleanCell(variant.mainStats?.feet?.[0] || variant.mainStats?.sphere?.[0] || variant.mainStats?.body?.[0]) : cleanCell(variant.lightCones?.[0]),
+      cleanCell(variant.artifactSets?.[0]),
+      variant.isAllInOneSheet ? cleanCell(variant.mainStats?.feet?.[0] || variant.mainStats?.sphere?.[0] || variant.mainStats?.body?.[0]) : cleanCell(variant.weapons?.[0]),
     ].filter(Boolean)[0] || "";
   }
 
@@ -220,7 +220,7 @@
   function getSettingVariantLabel(variant, index) {
     return [
       `${index + 1}.`,
-      cleanCell(variant.relicSets?.[0]),
+      cleanCell(variant.artifactSets?.[0]),
       cleanCell(variant.mainStats?.feet?.[0] || variant.mainStats?.sphere?.[0] || variant.mainStats?.body?.[0]),
     ].filter(Boolean).join(" ").replace(/\n+/g, " / ");
   }
@@ -276,7 +276,7 @@
   function renderWeaponVariantList(row, selectedWeaponVariant, renderedRowIndex) {
     if (!row.hasSeparateWeaponSelection) return "";
     const variants = (row.weaponVariants || [])
-      .map((variant, index) => ({ variant, index, label: cleanCell(variant.lightCones?.[0]) }))
+      .map((variant, index) => ({ variant, index, label: cleanCell(variant.weapons?.[0]) }))
       .filter((entry) => entry.label);
     if (!variants.length) return "";
 
@@ -300,23 +300,23 @@
     const weaponVariant = row.weaponVariant || variant;
     const checks = selectedComparison.checks || {};
     const weaponCheck = row.hasSeparateWeaponSelection
-      ? row.weaponComparison?.checks?.lightCone
-      : checks.lightCone;
+      ? row.weaponComparison?.checks?.weapon
+      : checks.weapon;
     const columnCount = 8;
-    const weaponLabel = row.build.lightCone
-      ? row.hasSeparateWeaponSelection ? row.build.lightCone : `${row.build.lightCone} [${getWeaponCritTypeLabel(row.build.weaponCritType)}]`
+    const weaponLabel = row.build.weapon
+      ? row.hasSeparateWeaponSelection ? row.build.weapon : `${row.build.weapon} [${getWeaponCritTypeLabel(row.build.weaponCritType)}]`
       : "";
 
     return `
       ${row.variants.length ? `<tr data-jalkiwotda-settings-row><td colspan="${columnCount}">${renderVariantList(row, variant, renderedRowIndex)}${renderSettingVariantList(row, settingVariant, renderedRowIndex)}${renderWeaponVariantList(row, weaponVariant, renderedRowIndex)}</td></tr>` : ""}
       <tr>
         <td>${renderInlineIcon(row.iconUrl, app.styles.characterIcon)}${escapeHtml(row.name)}</td>
-        <td>Lv.${escapeHtml(row.level)}<br>${escapeHtml(formatEidolon(row.rank))}</td>
+        <td>Lv.${escapeHtml(row.level)}<br>${escapeHtml(formatConstellation(row.rank))}</td>
         <td>${escapeHtml(cleanCell(variant.role))}</td>
-        <td>${renderOptionLine("무기", weaponLabel, weaponCheck, weaponVariant.lightCones, row.build.lightConeIcon, app.styles.equipmentIcon)}</td>
+        <td>${renderOptionLine("무기", weaponLabel, weaponCheck, weaponVariant.weapons, row.build.weaponIcon, app.styles.equipmentIcon)}</td>
         <td>
-          ${renderOptionHtmlLine("유물", formatSetGroupsHtml(row.build.relicSets), checks.relicSets, settingVariant.relicSets)}
-          ${row.build.ornamentSets.length ? renderOptionHtmlLine("장신구", formatSetGroupsHtml(row.build.ornamentSets), checks.ornamentSets, settingVariant.ornamentSets) : ""}
+          ${renderOptionHtmlLine("유물", formatSetGroupsHtml(row.build.artifactSets), checks.artifactSets, settingVariant.artifactSets)}
+          ${row.build.artifactExtraSets.length ? renderOptionHtmlLine("추가 유물", formatSetGroupsHtml(row.build.artifactExtraSets), checks.artifactExtraSets, settingVariant.artifactExtraSets) : ""}
         </td>
         <td>
           ${renderOptionLine("왕관", row.build.mainStats.body, checks.body, settingVariant.mainStats?.body)}

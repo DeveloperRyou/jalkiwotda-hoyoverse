@@ -13,7 +13,7 @@
       },
       body: JSON.stringify({
         filters: [],
-        menu_id: app.constants.wikiRelicSetMenuId,
+        menu_id: app.constants.wikiArtifactSetMenuId,
         page_num: pageNum,
         page_size: app.constants.wikiPageSize,
         use_es: true,

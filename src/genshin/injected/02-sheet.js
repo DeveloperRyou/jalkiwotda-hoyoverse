@@ -240,8 +240,8 @@
   function getCompactVariantKey(variant) {
     return JSON.stringify({
       role: variant.role,
-      lightCones: variant.lightCones,
-      relicSets: variant.relicSets,
+      weapons: variant.weapons,
+      artifactSets: variant.artifactSets,
       mainStats: variant.mainStats,
     });
   }
@@ -281,8 +281,8 @@
     function isDataRow(row) {
       const role = cleanCell(row[3]);
       const weapon = cleanCell(row[4]);
-      const relicSet = cleanCell(row[5]);
-      return Boolean(role && (weapon || relicSet) && !(role === weapon && weapon === relicSet));
+      const artifactSet = cleanCell(row[5]);
+      return Boolean(role && (weapon || artifactSet) && !(role === weapon && weapon === artifactSet));
     }
 
     function flushBlock(name, rowsToFlush) {
@@ -298,9 +298,9 @@
             traces: cleanCompactGenshinCell(blockRow, 1),
             ascensionStat: cleanCompactGenshinCell(blockRow, 2),
             role: cleanCompactGenshinCell(blockRow, 3),
-            lightCones: splitLines(cleanCompactGenshinCell(blockRow, 4)),
-            relicSets: splitLines(cleanCompactGenshinCell(blockRow, 5)),
-            ornamentSets: [],
+            weapons: splitLines(cleanCompactGenshinCell(blockRow, 4)),
+            artifactSets: splitLines(cleanCompactGenshinCell(blockRow, 5)),
+            artifactExtraSets: [],
             mainStats: {
               body: splitLines(cleanCompactGenshinCell(blockRow, 9)),
               feet: splitLines(cleanCompactGenshinCell(blockRow, 7)),
@@ -308,7 +308,7 @@
               rope: [],
             },
             usefulSubstats: [],
-            eidolons: cleanCompactGenshinCell(blockRow, 2),
+            constellations: cleanCompactGenshinCell(blockRow, 2),
             statTarget: formatCompactStatTarget(blockRow),
             critTargets,
             critTarget: critTargets.withoutCritWeapon || critTargets.withCritWeapon || "",
@@ -319,7 +319,7 @@
           const key = JSON.stringify(variant);
           if (seen.has(key)) return false;
           seen.add(key);
-          return cleanCell(variant.role) || variant.lightCones.length || variant.relicSets.length;
+          return cleanCell(variant.role) || variant.weapons.length || variant.artifactSets.length;
         }));
 
       characters.push({ name, variants });
@@ -362,12 +362,12 @@
           path: "",
           traces: cleanAllInOneGenshinCell(blockRow, 3),
           role: cleanAllInOneGenshinCell(blockRow, 6),
-          lightCones: splitLines(cleanAllInOneGenshinCell(blockRow, 17)),
-          relicSets: splitLines(cleanAllInOneGenshinCell(blockRow, 7)),
-          ornamentSets: [],
+          weapons: splitLines(cleanAllInOneGenshinCell(blockRow, 17)),
+          artifactSets: splitLines(cleanAllInOneGenshinCell(blockRow, 7)),
+          artifactExtraSets: [],
           mainStats: parseAllInOneGenshinMainStats(blockRow),
           usefulSubstats: splitLines(cleanAllInOneGenshinCell(blockRow, 14)),
-          eidolons: "",
+          constellations: "",
           statTarget: [cleanAllInOneGenshinCell(blockRow, 19), cleanAllInOneGenshinCell(blockRow, 20) ? `원충:${cleanAllInOneGenshinCell(blockRow, 20)}` : ""].filter(Boolean).join("\n"),
           critTarget: cleanAllInOneGenshinCell(blockRow, 18),
           critTargetRichText: metadata.richTexts?.[blockRow.__sheetRowIndex]?.[18] || [],
@@ -376,8 +376,8 @@
         .filter((variant) => {
           const key = JSON.stringify({
             role: variant.role,
-            lightCones: variant.lightCones,
-            relicSets: variant.relicSets,
+            weapons: variant.weapons,
+            artifactSets: variant.artifactSets,
             mainStats: variant.mainStats,
             statTarget: variant.statTarget,
             critTarget: variant.critTarget,
@@ -434,12 +434,12 @@
           path: cleanCell(blockRow[1]),
           traces: cleanCell(blockRow[2]),
           role: cleanCell(blockRow[3]),
-          lightCones: splitLines(blockRow[4]),
-          relicSets: splitLines(blockRow[5]),
-          ornamentSets: splitLines(blockRow[6]),
+          weapons: splitLines(blockRow[4]),
+          artifactSets: splitLines(blockRow[5]),
+          artifactExtraSets: splitLines(blockRow[6]),
           mainStats: parseMainStats(blockRow),
           usefulSubstats: splitLines(blockRow[11]),
-          eidolons: cleanCell(blockRow[12]),
+          constellations: cleanCell(blockRow[12]),
           statTarget: cleanCell(blockRow[13]),
           critTarget: cleanCell(blockRow[14]),
           notes: cleanCell(blockRow[15]),

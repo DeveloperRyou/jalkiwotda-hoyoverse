@@ -211,8 +211,8 @@
     return properties;
   }
 
-  function getWikiEntryId(item, relicWiki) {
-    const url = relicWiki?.[item?.id];
+  function getWikiEntryId(item, artifactWiki) {
+    const url = artifactWiki?.[item?.id];
     const match = String(url || "").match(/\/entry\/(\d+)/);
     return match ? Number(match[1]) : null;
   }
@@ -269,17 +269,17 @@
     ]);
   }
 
-  function getSetKey(item, relicWiki) {
+  function getSetKey(item, artifactWiki) {
     const setId = getSetIdFromItem(item);
     if (setId) return `set:${setId}`;
-    const wikiEntryId = getWikiEntryId(item, relicWiki);
+    const wikiEntryId = getWikiEntryId(item, artifactWiki);
     if (wikiEntryId) return `wiki:${wikiEntryId}`;
     const id = Number(item?.id || 0);
     return id ? `item:${Math.floor(id / 10)}` : "";
   }
 
-  function getSetInfo(item, relicWiki, wikiSetNames) {
-    const wikiEntryId = getWikiEntryId(item, relicWiki);
+  function getSetInfo(item, artifactWiki, wikiSetNames) {
+    const wikiEntryId = getWikiEntryId(item, artifactWiki);
     if (wikiEntryId && wikiSetNames?.has(wikiEntryId)) {
       const label = wikiSetNames.get(wikiEntryId);
       const staticInfo = app.constants.equipmentSetByWikiEntry.get(wikiEntryId);
@@ -301,15 +301,15 @@
     return possessiveIndex > 0 ? name.slice(0, possessiveIndex) : name;
   }
 
-  function summarizeSets(items, relicWiki, wikiSetNames) {
+  function summarizeSets(items, artifactWiki, wikiSetNames) {
     const groups = new Map();
 
     for (const item of items || []) {
-      const key = getSetKey(item, relicWiki);
+      const key = getSetKey(item, artifactWiki);
       if (!key) continue;
 
-      const setInfo = getSetInfo(item, relicWiki, wikiSetNames);
-      const wikiEntryId = getWikiEntryId(item, relicWiki);
+      const setInfo = getSetInfo(item, artifactWiki, wikiSetNames);
+      const wikiEntryId = getWikiEntryId(item, artifactWiki);
       const itemKey = Math.floor(Number(item?.id || 0) / 10);
       const dataAlias = getSetAliasFromItemName(item);
       const aliases = setInfo?.aliases ? [...setInfo.aliases] : [];
@@ -323,7 +323,7 @@
         dataAliases: setInfo ? [] : (dataAlias ? [dataAlias] : []),
         known: Boolean(setInfo),
         wikiEntryId,
-        wikiUrl: relicWiki?.[item?.id] || "",
+        wikiUrl: artifactWiki?.[item?.id] || "",
         itemKey,
         iconUrl: getImageUrl(item),
         count: 0,
@@ -386,11 +386,11 @@
         };
   }
 
-  function getBuildData(character, propertyInfo, relicWiki, wikiSetNames) {
+  function getBuildData(character, propertyInfo, artifactWiki, wikiSetNames) {
     const base = character.base || character;
-    const relics = base.relics || base.reliquaries || base.artifacts || character.relics || character.reliquaries || character.artifacts || [];
-    const ornaments = character.ornaments || [];
-    const itemsByPos = new Map([...relics, ...ornaments].map((item) => [item.pos || item.position, item]));
+    const artifacts = base.relics || base.reliquaries || base.artifacts || character.relics || character.reliquaries || character.artifacts || [];
+    const artifactExtras = character.ornaments || [];
+    const itemsByPos = new Map([...artifacts, ...artifactExtras].map((item) => [item.pos || item.position, item]));
     const weapon = character.weapon || character.equip || base.weapon || null;
     const weaponSubStat = getPropertyName(propertyInfo, weapon?.sub_property);
     const normalizedWeaponSubStat = normalizeCompareText(weaponSubStat);
@@ -407,22 +407,22 @@
     };
 
     return {
-      lightCone: cleanCell(weapon?.name || ""),
-      lightConeIcon: getImageUrl(weapon),
+      weapon: cleanCell(weapon?.name || ""),
+      weaponIcon: getImageUrl(weapon),
       weaponSubStat,
       weaponCritType,
       hasCritWeapon: weaponCritType !== "nonCrit",
-      relicSets: summarizeSets(relics, relicWiki, wikiSetNames),
-      ornamentSets: summarizeSets(ornaments, relicWiki, wikiSetNames),
+      artifactSets: summarizeSets(artifacts, artifactWiki, wikiSetNames),
+      artifactExtraSets: summarizeSets(artifactExtras, artifactWiki, wikiSetNames),
       mainStats,
     };
   }
 
   function compareVariant(build, variant, options = {}) {
     const checks = {
-      lightCone: compareText(build.lightCone, variant.lightCones || []),
-      relicSets: compareSetGroups(build.relicSets, variant.relicSets || []),
-      ornamentSets: compareSetGroups(build.ornamentSets, variant.ornamentSets || []),
+      weapon: compareText(build.weapon, variant.weapons || []),
+      artifactSets: compareSetGroups(build.artifactSets, variant.artifactSets || []),
+      artifactExtraSets: compareSetGroups(build.artifactExtraSets, variant.artifactExtraSets || []),
       body: compareText(build.mainStats.body, variant.mainStats?.body || [], normalizeMainStatCompareText),
       feet: compareText(build.mainStats.feet, variant.mainStats?.feet || [], normalizeMainStatCompareText),
       sphere: compareText(build.mainStats.sphere, variant.mainStats?.sphere || [], normalizeMainStatCompareText),
@@ -430,24 +430,24 @@
     };
 
     const score = Object.entries(checks).reduce((total, [key, check]) => {
-      if (key === "lightCone" && options.ignoreLightCone) return total;
+      if (key === "weapon" && options.ignoreWeapon) return total;
       const weight = app.constants.checkWeights[key] || 1;
       if (check.status === "ok") return total + (2 * weight);
       if (check.status === "bad") return total - weight;
       return total;
     }, 0);
 
-    const matchedSetCount = [checks.relicSets, checks.ornamentSets].filter((check) => check.status === "ok").length;
+    const matchedSetCount = [checks.artifactSets, checks.artifactExtraSets].filter((check) => check.status === "ok").length;
     const matchedMainStatCount = [checks.body, checks.feet, checks.sphere, checks.rope].filter((check) => check.status === "ok").length;
     return { variant, checks, score, matchedSetCount, matchedMainStatCount };
   }
 
   function compareWeaponVariant(build, variant) {
-    const lightCone = compareText(build.lightCone, variant.lightCones || []);
+    const weapon = compareText(build.weapon, variant.weapons || []);
     return {
       variant,
-      checks: { lightCone },
-      score: lightCone.status === "ok" ? 2 : lightCone.status === "bad" ? -1 : 0,
+      checks: { weapon },
+      score: weapon.status === "ok" ? 2 : weapon.status === "bad" ? -1 : 0,
       matchedSetCount: 0,
       matchedMainStatCount: 0,
     };
@@ -462,8 +462,8 @@
 
   function getAllInOneSettingKey(variant) {
     return JSON.stringify({
-      relicSets: variant.relicSets,
-      ornamentSets: variant.ornamentSets,
+      artifactSets: variant.artifactSets,
+      artifactExtraSets: variant.artifactExtraSets,
       mainStats: variant.mainStats,
       usefulSubstats: variant.usefulSubstats,
       settingTags: variant.allInOneSettingTags || [],
@@ -472,7 +472,7 @@
   }
 
   function getAllInOneWeaponKey(variant) {
-    return cleanCell(variant.lightCones?.[0]);
+    return cleanCell(variant.weapons?.[0]);
   }
 
   function splitAllInOneVariants(variants) {
@@ -490,9 +490,9 @@
         roleVariants.push({
           ...variant,
           allInOneRoleKey: roleKey,
-          lightCones: [],
-          relicSets: [],
-          ornamentSets: [],
+          weapons: [],
+          artifactSets: [],
+          artifactExtraSets: [],
           mainStats: { body: [], feet: [], sphere: [], rope: [] },
           usefulSubstats: [],
           statTarget: "",
@@ -508,7 +508,7 @@
           ...variant,
           allInOneSettingKey: settingKey,
           role: "",
-          lightCones: [],
+          weapons: [],
           statTarget: "",
           critTarget: "",
           notes: "",
@@ -522,8 +522,8 @@
           ...variant,
           allInOneWeaponKey: weaponKey,
           role: "",
-          relicSets: [],
-          ornamentSets: [],
+          artifactSets: [],
+          artifactExtraSets: [],
           mainStats: { body: [], feet: [], sphere: [], rope: [] },
           usefulSubstats: [],
           statTarget: "",
@@ -606,7 +606,7 @@
       .map((variant) => compareWeaponVariant(build, variant))
       .sort((left, right) =>
         right.score - left.score ||
-        Number(Boolean(cleanCell(right.variant?.lightCones?.[0]))) - Number(Boolean(cleanCell(left.variant?.lightCones?.[0]))),
+        Number(Boolean(cleanCell(right.variant?.weapons?.[0]))) - Number(Boolean(cleanCell(left.variant?.weapons?.[0]))),
       )[0] || null;
   }
 
@@ -866,7 +866,7 @@
 
   function buildReportRows(detailData, sheetCharacters, wikiSetNames = new Map()) {
     const propertyInfo = detailData.property_info || detailData.property_map || {};
-    const relicWiki = detailData.relic_wiki || {};
+    const artifactWiki = detailData.relic_wiki || {};
     const sheetByNormalizedName = new Map(sheetCharacters.map((character) => [normalizeName(character.name), character]));
 
     const characters = detailData.jalkiwotda_ordered_characters || detailData.avatar_list || detailData.avatars || detailData.list || detailData.characters || detailData.character_list || (detailData.avatar || detailData.base || detailData.name ? [detailData.avatar || detailData] : []);
@@ -893,8 +893,8 @@
           ...(base.element_properties || []),
       ]);
       const build = character
-        ? getBuildData(character, propertyInfo, relicWiki, wikiSetNames)
-        : { lightCone: "", lightConeIcon: "", relicSets: [], ornamentSets: [], mainStats: { body: "", feet: "", sphere: "", rope: "" } };
+        ? getBuildData(character, propertyInfo, artifactWiki, wikiSetNames)
+        : { weapon: "", weaponIcon: "", artifactSets: [], artifactExtraSets: [], mainStats: { body: "", feet: "", sphere: "", rope: "" } };
       const sheetVariants = sheetCharacter.variants || [];
       const hasSeparateWeaponSelection = sheetVariants.some((variant) => variant.isAllInOneSheet);
       const splitVariants = hasSeparateWeaponSelection
@@ -905,16 +905,16 @@
       const weaponVariants = splitVariants.weaponVariants;
       const comparisons = hasSeparateWeaponSelection
         ? variants.map((variant) => ({ variant, checks: {}, score: 0, matchedSetCount: 0, matchedMainStatCount: 0 }))
-        : variants.map((variant) => compareVariant(build, variant, { ignoreLightCone: hasSeparateWeaponSelection }));
+        : variants.map((variant) => compareVariant(build, variant, { ignoreWeapon: hasSeparateWeaponSelection }));
       const settingComparisons = hasSeparateWeaponSelection
-        ? settingVariants.map((variant) => compareVariant(build, variant, { ignoreLightCone: true }))
+        ? settingVariants.map((variant) => compareVariant(build, variant, { ignoreWeapon: true }))
         : [];
       const weaponComparisons = hasSeparateWeaponSelection ? weaponVariants.map((variant) => compareWeaponVariant(build, variant)) : [];
       const comparison = hasSeparateWeaponSelection
         ? comparisons[0] || null
-        : pickBestComparison(build, variants, { ignoreLightCone: hasSeparateWeaponSelection });
+        : pickBestComparison(build, variants, { ignoreWeapon: hasSeparateWeaponSelection });
       const selectedVariantIndex = Math.max(0, comparisons.findIndex((candidate) => candidate?.variant === comparison?.variant));
-      const settingComparison = hasSeparateWeaponSelection ? pickBestComparison(build, settingVariants, { ignoreLightCone: true }) : null;
+      const settingComparison = hasSeparateWeaponSelection ? pickBestComparison(build, settingVariants, { ignoreWeapon: true }) : null;
       const selectedSettingVariantIndex = hasSeparateWeaponSelection
         ? Math.max(0, settingComparisons.findIndex((candidate) => candidate?.variant === settingComparison?.variant))
         : selectedVariantIndex;
